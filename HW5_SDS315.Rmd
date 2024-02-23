@@ -1,0 +1,124 @@
+---
+title: "HW5_SDS315"
+output: html_document
+date: "2024-02-20"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(scipen=999)
+library(dplyr)
+library(tidyverse)
+library(mosaic)
+library(ggplot2)
+library(kableExtra)
+```
+
+## HW 5
+
+Name: Madeline Boss
+
+EID: mrb5727
+
+To see the code visit [Github](https://github.com/MadelineRBoss/HW4_SDS315)
+
+### Probelm 1 - Iron Bank
+```{r 1, echo=FALSE}
+bank_stim <- do(100000)*nflip(n=2021, prob = 0.024)
+Iron_Bank_p <- sum(bank_stim >= 70)/100000
+```
+The null hypothesis we're testing is if Iron Bank's 70/2021 flags for insider trading is reasonable for SEC's 2.4% baseline rate for traders. Using 100,000 Monte Carlo stimulation, the p-value of getting 70/2021 flags is `r round(Iron_Bank_p, 4)`. Since this value is below 0.05, we can reject the null hypothesis and conclude Iron Bank is most likely engaging in Insider Trading.
+
+\newpage
+
+### Probelm 2 - Health Inspections
+```{r 2, echo=FALSE}
+health_issue_stim <- do(100000)*nflip(n=50, prob = 0.03)
+Gourmet_Bites_p = sum(health_issue_stim >= 8)/100000
+```
+
+The null hypothesis we're examining is if Gourmet Bites' 8/50 health violations is the reasonable with the city's 3% average of health violations. Using 100,000 Monte Carlo stimulation, the p-value of getting 8/50 health violations is `r round(Gourmet_Bites_p, 4)`. Since this value is under 0.05, we can say the null hypothesis is false. In other words, Gourmet Bites' health violation rate is an anomaly and the city should take action against them.
+
+\newpage
+
+### Probelm 3 - LLM Watermarking
+```{r 3 setup, include=FALSE}
+brown_sentences_data <- readLines("C:/Users/madel/OneDrive/Desktop/SDS 315/brown_sentences.txt")
+```
+
+#### Part A
+```{r 3a, include=FALSE}
+base_distrubution <- read_csv("C:/Users/madel/OneDrive/Desktop/SDS 315/letter_frequencies.csv")
+
+#########################################
+chi_sq_stats <- c()
+
+for(my_line in brown_sentences_data){
+# Ensure letter frequencies are normalized and sum to 1
+  base_distrubution$Probability = base_distrubution$Probability / sum(base_distrubution$Probability)
+  
+  # Remove non-letters and convert to uppercase
+  clean_sentence = gsub("[^A-Za-z]", "", my_line)
+  clean_sentence = toupper(clean_sentence)
+  
+  # Count the occurrences of each letter in the sentence
+  observed_counts = table(factor(strsplit(clean_sentence, "")[[1]], levels = base_distrubution$Letter))
+  
+  # Calculate expected counts
+  total_letters = sum(observed_counts)
+  expected_counts = total_letters * base_distrubution$Probability
+  
+  # Chi-squared statistic
+  chi_squared_stat = sum((observed_counts - expected_counts)^2 / expected_counts)
+  
+  chi_sq_stats = append(chi_sq_stats, chi_squared_stat)
+}
+```
+```{r 3a graph, echo=FALSE}
+
+ggplot() + geom_histogram(aes(chi_sq_stats)) + labs(title = "Chi Sqaure Distrubution for Letter Frequencies (English)", x = "Chi Sqaure Statistic")
+```
+
+
+#### Part B
+```{r 3b, echo = FALSE}
+Test_sentences <- c("She opened the book and started to read the first chapter, eagerly anticipating what might come next.",
+               "Despite the heavy rain, they decided to go for a long walk in the park, crossing the main avenue by the fountain in the center.",
+               "The museum’s new exhibit features ancient artifacts from various civilizations around the world.",
+               "He carefully examined the document, looking for any clues that might help solve the mystery.",
+               "The students gathered in the auditorium to listen to the guest speaker’s inspiring lecture.",
+               "Feeling vexed after an arduous and zany day at work, she hoped for a peaceful and quiet evening at home, cozying up after a quick dinner with some TV, or maybe a book on her upcoming visit to Auckland.",
+               "The chef demonstrated how to prepare a delicious meal using only locally sourced ingredients, focusing mainly on some excellent dinner recipes from Spain.",
+               "They watched the sunset from the hilltop, marveling at the beautiful array of colors in the sky.",
+               "The committee reviewed the proposal and provided many points of useful feedback to improve the project’s effectiveness.",
+               "Despite the challenges faced during the project, the team worked tirelessly to ensure its successful completion, resulting in a product that exceeded everyone’s expectations.")
+
+p_value_c <- c()
+
+for(sentence in Test_sentences){
+  base_distrubution$Probability = base_distrubution$Probability / sum(base_distrubution$Probability)
+  
+  # Remove non-letters and convert to uppercase
+  clean_sentence = gsub("[^A-Za-z]", "", sentence)
+  clean_sentence = toupper(clean_sentence)
+  
+  # Count the occurrences of each letter in the sentence
+  observed_counts = table(factor(strsplit(clean_sentence, "")[[1]], levels = base_distrubution$Letter))
+  
+  # Calculate expected counts
+  total_letters = sum(observed_counts)
+  expected_counts = total_letters * base_distrubution$Probability
+  
+  # Chi-squared statistic
+  chi_squared_stat = sum((observed_counts - expected_counts)^2 / expected_counts)
+  
+  #P value
+  p_value = sum(chi_sq_stats >= chi_squared_stat)/length(chi_sq_stats)
+  p_value_c = append(p_value_c, p_value)
+}
+
+p_values_table <- tibble("Sentence Number" = c(1:10), "P Values" = p_value_c)
+kable_classic_2(kbl(p_values_table, table.attr = "style='width:30%;'"))
+```
+
+The only sentence that has a significant p-value is sentence 6 with p-value `r round(p_value_c[6], 5)`, meaning sentence 6 was LLM generated. 
