@@ -1,6 +1,8 @@
 ---
 title: "HW5_SDS315"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 date: "2024-02-20"
 ---
 
@@ -20,14 +22,15 @@ Name: Madeline Boss
 
 EID: mrb5727
 
-To see the code visit [Github](https://github.com/MadelineRBoss/HW4_SDS315)
+To see the code visit [Github](https://github.com/MadelineRBoss/HW5_SDS315)
 
 ### Probelm 1 - Iron Bank
 ```{r 1, echo=FALSE}
 bank_stim <- do(100000)*nflip(n=2021, prob = 0.024)
 Iron_Bank_p <- sum(bank_stim >= 70)/100000
+ggplot(bank_stim) + geom_histogram(aes(nflip, fill = nflip >= 70), binwidth = 1) + guides(fill="none") + labs(title = "Probality Distrubution of Insider Trading", x = "Number of Insider Trading out of 2021")
 ```
-The null hypothesis we're testing is if Iron Bank's 70/2021 flags for insider trading is reasonable for SEC's 2.4% baseline rate for traders. Using 100,000 Monte Carlo stimulation, the p-value of getting 70/2021 flags is `r round(Iron_Bank_p, 4)`. Since this value is below 0.05, we can reject the null hypothesis and conclude Iron Bank is most likely engaging in Insider Trading.
+The null hypothesis we're testing is if Iron Bank's 70/2021 flags for insider trading is reasonable for SEC's 2.4% baseline rate for traders. Using 100,000 Monte Carlo stimulation, the p-value of getting 70/2021 flags is `r round(Iron_Bank_p, 4)`. Since this value is below 0.05, we can reject the null hypothesis and conclude Iron Bank is most likely engaging in Insider Trading. The graph above shows the probability distribution, with red being values below 70, and blue being values equal to 70 and above.
 
 \newpage
 
@@ -35,9 +38,10 @@ The null hypothesis we're testing is if Iron Bank's 70/2021 flags for insider tr
 ```{r 2, echo=FALSE}
 health_issue_stim <- do(100000)*nflip(n=50, prob = 0.03)
 Gourmet_Bites_p = sum(health_issue_stim >= 8)/100000
+ggplot(health_issue_stim) + geom_histogram(aes(nflip, fill = nflip >= 8), binwidth = 1) + guides(fill="none") + labs(title = "Probality Distrubution of Number of Health Violation", x = "Number of Health Violations out of 50")
 ```
 
-The null hypothesis we're examining is if Gourmet Bites' 8/50 health violations is the reasonable with the city's 3% average of health violations. Using 100,000 Monte Carlo stimulation, the p-value of getting 8/50 health violations is `r round(Gourmet_Bites_p, 4)`. Since this value is under 0.05, we can say the null hypothesis is false. In other words, Gourmet Bites' health violation rate is an anomaly and the city should take action against them.
+The null hypothesis we're examining is if Gourmet Bites' 8/50 health violations is the reasonable with the city's 3% average of health violations. Using 100,000 Monte Carlo stimulation, the p-value of getting 8/50 health violations is `r round(Gourmet_Bites_p, 4)`. Since this value is under 0.05, we can say the null hypothesis is false. In other words, Gourmet Bites' health violation rate is an anomaly and the city should take action against them. The graph above shows the probability distribution, with red being values below 8, and blue being values equal to 8 and above.
 
 \newpage
 
@@ -76,7 +80,7 @@ for(my_line in brown_sentences_data){
 ```
 ```{r 3a graph, echo=FALSE}
 
-ggplot() + geom_histogram(aes(chi_sq_stats)) + labs(title = "Chi Sqaure Distrubution for Letter Frequencies (English)", x = "Chi Sqaure Statistic")
+ggplot() + geom_histogram(aes(chi_sq_stats), binwidth = 10) + labs(title = "Chi Sqaure Distrubution for Letter Frequencies (English)", x = "Chi Sqaure Statistic")
 ```
 
 
